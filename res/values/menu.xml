@@ -9,9 +9,9 @@
 	<string
 		name="menu_tdiary_label">RubyKaigi nikki(ja)</string>
 	<string
-		name="menu_info_title">aRubyKaigi2010</string>
+		name="menu_info_title">aRubyKaigi2011</string>
 	<string
-		name="menu_info_message">This software is an unofficial RubyKaigi2010 program viewer.
+		name="menu_info_message">This software is an unofficial RubyKaigi2011 program viewer.
 		Happy Kaiging!! by @takkaw :)</string>
 	<string
 		name="menu_dbdrop_label">DB drop(debug)</string>
