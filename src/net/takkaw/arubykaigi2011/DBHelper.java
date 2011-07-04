@@ -1,4 +1,4 @@
-package net.takkaw.arubykaigi2010;
+package net.takkaw.arubykaigi2011;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
-    	private final static String DB_NAME = "RubyKaigi2010.db";
-    	private final static String DB_TABLE = "RubyKaigi2010";
+    	private final static String DB_NAME = "RubyKaigi2011.db";
+    	private final static String DB_TABLE = "RubyKaigi2011";
     	private final static int DB_VERSION = 1;   
     	
     	private static Context c;

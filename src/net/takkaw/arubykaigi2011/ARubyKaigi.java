@@ -1,4 +1,4 @@
-package net.takkaw.arubykaigi2010;
+package net.takkaw.arubykaigi2011;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -61,7 +61,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 		list_view.setOnItemClickListener(this);
 		
 		//Auto recreate DataBase
-		SharedPreferences pref = getSharedPreferences("aRubyKaigi2010",MODE_PRIVATE);
+		SharedPreferences pref = getSharedPreferences("aRubyKaigi2011",MODE_PRIVATE);
 		String old = pref.getString("dbRevision", "nonDB");
 		String now = getResources().getString(R.string.db_revision);
 		Log.v("old",old);

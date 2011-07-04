@@ -1,4 +1,4 @@
-package net.takkaw.arubykaigi2010;
+package net.takkaw.arubykaigi2011;
 
 import android.app.ListActivity;
 import android.content.Intent;
