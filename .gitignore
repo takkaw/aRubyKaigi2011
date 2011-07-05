@@ -1,3 +1,5 @@
+######
+
 # https://github.com/github/gitignore/blob/master/Android.gitignore
 
 # built application files
@@ -16,3 +18,7 @@ gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
+
+######
+
+scripts/rubykaigi
