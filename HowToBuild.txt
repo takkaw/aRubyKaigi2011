@@ -1,0 +1,8 @@
+At first, you can make db file like below
+
+$ cd scripts
+$ git clone http://github.com/ruby-no-kai/rubykaigi.git
+$ ./make_db.rb
+
+Then, build as always.
+
