@@ -2,8 +2,8 @@
 <resources>
     <string-array name="days">
         <item>*</item>
-        <item>27</item>
-        <item>28</item>
-        <item>29</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
     </string-array>
 </resources>
