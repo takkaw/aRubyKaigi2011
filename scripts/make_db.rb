@@ -21,6 +21,12 @@ def create_table(db)
       string :lang
     end 
   end
+  unless db.table_exists? :android_metadata
+    db.create_table :android_metadata do
+      text :locale
+    end
+    db[:android_metadata] << {:locale => 'en_US'}
+  end
 end
 create_table(db_en)
 create_table(db_ja)
