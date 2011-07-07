@@ -32,13 +32,11 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 		
 		private SQLiteDatabase createDB(SQLiteDatabase db) {
-			String db_path = DB_PATH + DB_NAME;
-
 			db.close();
 
 			try {
 				InputStream mInput = c.getAssets().open("RubyKaigi2011ja.db");
-				OutputStream mOutput = new FileOutputStream(db_path);
+				OutputStream mOutput = new FileOutputStream(DB_PATH + DB_NAME);
 				byte[] buffer = new byte[1024];
 				int size;
 				while ((size = mInput.read(buffer)) > 0){
