@@ -84,47 +84,25 @@ public class DBHelper extends SQLiteOpenHelper {
     	
 		public Cursor formSearch(String day, String room, String lang,String keyword){
 			StringBuffer sql = new StringBuffer();
-			sql.append("select * from ");
-			sql.append( DB_TABLE );
-			boolean first = false;
-			if( day != null ){
-				if( first == false ) sql.append(" where ");
-				else sql.append(" and ");
-				sql.append("day like '");
-				sql.append(day);
-				sql.append("'");
-				first = true;
+
+			if( day != null ){				
+				sql.append( ( sql.length() == 0 ) ? " where " : " and " );
+				sql.append( String.format("day like '%s'", day));
 			}
 			if( room != null ){
-				if( first == false )sql.append(" where ");
-				else sql.append(" and ");
-				sql.append("room like '");
-				sql.append(room);
-				sql.append("'");
-				first = true;
+				sql.append( ( sql.length() == 0 ) ? " where " : " and " ); 
+				sql.append( String.format("room like '%s'", room));
 			}
 			if( lang != null ){
-				if( first == false )sql.append(" where ");
-				else sql.append(" and ");
-				sql.append("lang like '%");
-				sql.append(lang);
-				sql.append("%'");
-				first = true;
+				sql.append( ( sql.length() == 0 ) ? " where " : " and " ); 
+				sql.append( String.format("lang like '%s'", lang));
 			}
 			if( keyword != null ){
-				if( first == false )sql.append(" where (");
-				else sql.append(" and (");
-				sql.append("title like '%");
-				sql.append(keyword);
-				sql.append("%' or ");
-				sql.append("speaker like '%");
-				sql.append(keyword);
-				sql.append("%' or ");
-				sql.append("desc like '%");
-				sql.append(keyword);
-				sql.append("%' )");
+				sql.append( ( sql.length() == 0 ) ? " where (" : " and (" ); 
+				sql.append(String.format("title like '%%%s%%' or speaker like '%%%s%%' or desc like '%%%s%%' )",keyword,keyword,keyword));
 			}
 			sql.append(" order by day,start");
+			sql.insert(0, "select * from " + DB_TABLE);
 			
 			String str_sql = sql.toString();
 			
@@ -135,14 +113,8 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 		
 		public Cursor idSearch( int id ){
-			StringBuffer sql = new StringBuffer();
-			sql.append("select * from ");
-			sql.append(DB_TABLE);
-			sql.append(" where _id like '");
-			sql.append(Integer.toString(id));
-			sql.append("'");
-			String str_sql = sql.toString();
 			db = this.getReadableDatabase();
+			String str_sql = String.format("select * from %s where _id like %s",DB_TABLE,Integer.toString(id));
 			Cursor cursor = db.rawQuery(str_sql, null);
 			return cursor;
 		}
