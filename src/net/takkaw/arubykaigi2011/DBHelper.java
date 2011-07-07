@@ -1,19 +1,24 @@
 package net.takkaw.arubykaigi2011;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
     	private final static String DB_NAME = "RubyKaigi2011.db";
     	private final static String DB_TABLE = "RubyKaigi2011";
-    	private final static int DB_VERSION = 1;   
+    	private final static int DB_VERSION = 1;
+    	private final static String DB_PATH = "/data/data/net.takkaw.arubykaigi2011/databases/";
     	
     	private static Context c;
     	private SQLiteDatabase db = null; 
+    	private boolean createDatabase = false;
     	
 		public DBHelper(Context context) {
 			super(context, DB_NAME, null, DB_VERSION);
@@ -22,70 +27,59 @@ public class DBHelper extends SQLiteOpenHelper {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			createDB(db);
+//			createDB(db);
+			createDatabase = true;
 		}
 		
-		private void createDB(SQLiteDatabase db){
-			db.execSQL("create table if not exists "+DB_TABLE+" (" +
-					"_id integer primary key autoincrement," +
-					"day text not null,"+
-					"room text not null," +
-					"start text not null," +
-					"end text not null," +
-					"title text not null," +
-					"speaker text not null," +
-					"desc text not null," +
-					"lang text not null" +
-					");"
-			);
+		private SQLiteDatabase createDB(SQLiteDatabase db) {
+			String db_path = DB_PATH + DB_NAME;
 
-	       String[] days = c.getResources().getStringArray(R.array.day);
-	       String[] rooms = c.getResources().getStringArray(R.array.room);
-	       String[] starts = c.getResources().getStringArray(R.array.start);
-	       String[] ends = c.getResources().getStringArray(R.array.end);
-	       String[] titles = c.getResources().getStringArray(R.array.title);
-	       String[] speakers = c.getResources().getStringArray(R.array.speaker);
-	       String[] descs = c.getResources().getStringArray(R.array.desc);
-	       String[] langs = c.getResources().getStringArray(R.array.lang);
-			int size = titles.length;
-			
-			db.beginTransaction();
+			db.close();
+
 			try {
-			    SQLiteStatement stmt = db.compileStatement(
-			    		"insert into " + 
-			    		DB_TABLE +
-			    		" (day,room,start,end,title,speaker,desc,lang) " + 
-			    		"values (?,?,?,?,?,?,?,?)"
-			    );
-			    for(int i=0 ; i < size ; i++ ){
-			    	stmt.bindString(1, days[i]);
-			    	stmt.bindString(2, rooms[i]);
-			    	stmt.bindString(3, starts[i]);
-			    	stmt.bindString(4, ends[i]);
-			    	stmt.bindString(5, titles[i]);
-			    	stmt.bindString(6, speakers[i]);
-			    	stmt.bindString(7, descs[i]);
-			    	stmt.bindString(8, langs[i]);
-			       stmt.executeInsert();
-			    }
-			    db.setTransactionSuccessful();
+				InputStream mInput = c.getAssets().open("RubyKaigi2011ja.db");
+				OutputStream mOutput = new FileOutputStream(db_path);
+				byte[] buffer = new byte[1024];
+				int size;
+				while ((size = mInput.read(buffer)) > 0){
+					mOutput.write(buffer,0,size);
+				}
+				mOutput.flush();
+				mOutput.close();
+				mInput.close();
 			}
-			finally {
-			    db.endTransaction();
+			catch (IOException e){
+				/* Nothing to do */
 			}
+			
+			createDatabase = false;
+			
+			return super.getReadableDatabase();
 		}
 
 		public void reCreateDB(){
 			db = this.getWritableDatabase();
 			db.execSQL("drop table if exists "+DB_TABLE);
+			createDatabase = true;
 			createDB(db);
 			db.close();
 		}
-		
+
+		@Override
+		public synchronized SQLiteDatabase getReadableDatabase(){
+			SQLiteDatabase db = super.getReadableDatabase();
+
+			if( createDatabase == true ){
+				db = createDB(db);
+			}
+			
+			return db;
+		}
+
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			db.execSQL("drop table if exists "+DB_TABLE);
-			onCreate(db);
+//			onCreate(db);
 		}
     	
 		public Cursor formSearch(String day, String room, String lang,String keyword){
@@ -133,8 +127,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			sql.append(" order by day,start");
 			
 			String str_sql = sql.toString();
-
-			Log.v("formSearch_sql",str_sql);
+			
 			db = this.getReadableDatabase();
 			
 			Cursor cursor = db.rawQuery(str_sql,null);
@@ -149,7 +142,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			sql.append(Integer.toString(id));
 			sql.append("'");
 			String str_sql = sql.toString();
-			Log.v("idSearch_sql",str_sql);
 			db = this.getReadableDatabase();
 			Cursor cursor = db.rawQuery(str_sql, null);
 			return cursor;
