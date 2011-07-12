@@ -47,6 +47,8 @@ yamls = Dir.glob(path + '/rubykaigi/db/2011/room_timetables/*.yaml').sort!
 rooms_en = {'M' => 'Main Hall','S' => 'Sub Hall'}
 rooms_ja = {'M' => '大ホール','S' => '小ホール'}
 
+special_event = ['Open','Break','Lunch','Transit time','Party at Ikebukuro']
+
 yamls.each { |yaml|
   y = YAML.load_file(yaml)
 
@@ -86,10 +88,14 @@ yamls.each { |yaml|
 
         lang = ( ev['language'] || '' ).gsub('English','en').gsub('Japanese','ja')
 
+        special = special_event.include? title_en
+
+        break if special && room_en == 'Sub Hall'
+
         db[:RubyKaigi2011] << {
           :day => day,
-          :room_en => room_en,
-          :room_ja => room_ja,
+          :room_en => special ? '' : room_en,
+          :room_ja => special ? '' : room_ja,
           :start => start,
           :end => _end,
           :title_en => title_en,
