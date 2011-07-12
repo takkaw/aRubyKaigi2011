@@ -20,6 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
     	private static Context c;
     	private static Resources res;
     	private SQLiteDatabase db = null; 
+    	private Cursor cursor = null;
     	private boolean createDatabase = false;
 
     	private static final String DAY = "day";
@@ -103,6 +104,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
     	
 		public Cursor formSearch(String day, String room, String lang,String keyword){
+			
+			if( this.cursor != null ) this.cursor.close();
+			
 			StringBuffer sql = new StringBuffer();
 
 			if( day != null ){				
@@ -134,7 +138,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			
 			db = this.getReadableDatabase();
 			
-			Cursor cursor = db.rawQuery(str_sql,null);
+			this.cursor = db.rawQuery(str_sql,null);
 			return cursor;
 		}
 		
