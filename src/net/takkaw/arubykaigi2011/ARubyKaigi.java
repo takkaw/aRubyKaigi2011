@@ -118,7 +118,6 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
 				R.layout.item, cursor, DBHelper.FROM, TO);
 		list_view.setAdapter(adapter);
-		dbHelper.close();
 	}
 
 	// Menu

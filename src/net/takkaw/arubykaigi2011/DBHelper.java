@@ -19,7 +19,6 @@ public class DBHelper extends SQLiteOpenHelper {
     	
     	private static Context c;
     	private static Resources res;
-    	private SQLiteDatabase db = null; 
     	private Cursor cursor = null;
     	private boolean createDatabase = false;
 
@@ -50,7 +49,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-//			createDB(db);
 			createDatabase = true;
 		}
 		
@@ -79,11 +77,11 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 
 		public void reCreateDB(){
-			db = this.getWritableDatabase();
+			SQLiteDatabase db = this.getWritableDatabase();
 			db.execSQL("drop table if exists "+DB_TABLE);
 			createDatabase = true;
 			createDB(db);
-			db.close();
+//			db.close();
 		}
 
 		@Override
@@ -136,24 +134,17 @@ public class DBHelper extends SQLiteOpenHelper {
 			
 			String str_sql = sql.toString();
 			
-			db = this.getReadableDatabase();
+			SQLiteDatabase db = this.getReadableDatabase();
 			
 			this.cursor = db.rawQuery(str_sql,null);
 			return cursor;
 		}
 		
 		public Cursor idSearch( int id ){
-			db = this.getReadableDatabase();
+			SQLiteDatabase db = this.getReadableDatabase();
 			String str_sql = String.format("select * from %s where _id like %s",DB_TABLE,Integer.toString(id));
 			Cursor cursor = db.rawQuery(str_sql, null);
 			return cursor;
 		}
-				
-		public void close(){
-			if( db != null ){
-				db.close();
-				db = null;
-			}
-		}
-				
+		
     }
