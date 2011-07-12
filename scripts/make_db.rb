@@ -34,7 +34,7 @@ create_table(db_ja)
 require 'yaml'
 require 'date'
 
-yamls = Dir.glob(path + '/rubykaigi/db/2011/room_timetables/*.yaml')
+yamls = Dir.glob(path + '/rubykaigi/db/2011/room_timetables/*.yaml').sort!
 
 rooms_en = {'M' => 'Main Hall','S' => 'Sub Hall'}
 rooms_ja = {'M' => '大ホール','S' => '小ホール'}
