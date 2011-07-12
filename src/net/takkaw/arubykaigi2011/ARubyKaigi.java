@@ -3,13 +3,11 @@ package net.takkaw.arubykaigi2011;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -61,22 +59,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 		list_view = (ListView) findViewById(R.id.list);
 		update_list();
 		list_view.setEmptyView(findViewById(R.id.empty));
-		list_view.setOnItemClickListener(this);
-		
-		//Auto recreate DataBase
-		SharedPreferences pref = getSharedPreferences("aRubyKaigi2011",MODE_PRIVATE);
-		String old = pref.getString("dbRevision", "nonDB");
-		String now = getResources().getString(R.string.db_revision);
-		Log.v("old",old);
-		Log.v("new",now);
-		if( now.equals(old) != true ){
-			Log.v("diff!!","diff!!");
-			dbHelper.reCreateDB();
-			SharedPreferences.Editor editor = pref.edit();
-			editor.putString("dbRevision", now);
-			editor.commit();
-		}
-		Log.v("end","end");	
+		list_view.setOnItemClickListener(this);		
 	}
 
 	@Override

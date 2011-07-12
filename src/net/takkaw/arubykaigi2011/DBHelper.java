@@ -76,14 +76,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			return super.getReadableDatabase();
 		}
 
-		public void reCreateDB(){
-			SQLiteDatabase db = this.getWritableDatabase();
-			db.execSQL("drop table if exists "+DB_TABLE);
-			createDatabase = true;
-			createDB(db);
-//			db.close();
-		}
-
 		@Override
 		public synchronized SQLiteDatabase getReadableDatabase(){
 			SQLiteDatabase db = super.getReadableDatabase();
