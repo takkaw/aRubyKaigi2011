@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <resources>
+        <string name="room">room_ja</string>
+        <string name="speaker">speaker_ja</string>
+        <string name="title">title_ja</string>
+        <string name="desc">desc_ja</string>
+    </resources>

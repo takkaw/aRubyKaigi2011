@@ -6,23 +6,45 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
     	private final static String DB_NAME = "RubyKaigi2011.db";
-    	private final static String DB_TABLE = "RubyKaigi2011";
+    	private final static String DB_TABLE = "RubyKaigi2011";		
     	private final static int DB_VERSION = 1;
     	private final static String DB_PATH = "/data/data/net.takkaw.arubykaigi2011/databases/";
     	
     	private static Context c;
+    	private static Resources res;
     	private SQLiteDatabase db = null; 
     	private boolean createDatabase = false;
-    	
+
+    	private static final String DAY = "day";
+    	private static final String ROOM = "room_en";
+    	private static final String START = "start";
+    	private static final String END = "end";
+    	private static final String TITLE = "title_en";
+    	private static final String SPEAKER = "speaker_en";
+    	private static final String DESC = "desc_en";
+    	private static final String LANG = "lang";
+		
+		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG };
+		
+		public void makeCursorFrom(Resources res){
+			FROM[1] = res.getString(R.string.room);
+			FROM[4] = res.getString(R.string.title);
+			FROM[5] = res.getString(R.string.speaker);
+			FROM[6] = res.getString(R.string.desc);
+		}
+
 		public DBHelper(Context context) {
 			super(context, DB_NAME, null, DB_VERSION);
 			c = context;
+			res = c.getResources();
+			makeCursorFrom(res);
 		}
 
 		@Override
@@ -35,7 +57,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			db.close();
 
 			try {
-				InputStream mInput = c.getAssets().open("RubyKaigi2011ja.db");
+				InputStream mInput = c.getAssets().open("RubyKaigi2011.db");
 				OutputStream mOutput = new FileOutputStream(DB_PATH + DB_NAME);
 				byte[] buffer = new byte[1024];
 				int size;
@@ -89,7 +111,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if( room != null ){
 				sql.append( ( sql.length() == 0 ) ? " where " : " and " ); 
-				sql.append( String.format("room like '%s'", room));
+				sql.append( String.format("%s like '%s'", res.getString(R.string.room),room));
 			}
 			if( lang != null ){
 				sql.append( ( sql.length() == 0 ) ? " where " : " and " ); 
@@ -97,7 +119,13 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if( keyword != null ){
 				sql.append( ( sql.length() == 0 ) ? " where (" : " and (" ); 
-				sql.append(String.format("title like '%%%s%%' or speaker like '%%%s%%' or desc like '%%%s%%' )",keyword,keyword,keyword));
+				sql.append(
+					String.format("%s like '%%%s%%' or %s like '%%%s%%' or %s like '%%%s%%' )",
+						res.getString(R.string.title),keyword,
+						res.getString(R.string.speaker),keyword,
+						res.getString(R.string.desc),keyword
+					)
+				);
 			}
 			sql.append(" order by day,start");
 			sql.insert(0, "select * from " + DB_TABLE);
@@ -123,5 +151,5 @@ public class DBHelper extends SQLiteOpenHelper {
 				db = null;
 			}
 		}
-		
+				
     }

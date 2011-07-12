@@ -2,30 +2,31 @@
 # coding : utf-8
 
 path = File.expand_path(File.dirname(__FILE__))
+db_path = path + '/../assets/RubyKaigi2011.db'
+
 begin
-  db_path_en = path + '/../assets/RubyKaigi2011en.db'
-  db_path_ja = path + '/../assets/RubyKaigi2011ja.db'
+File.delete(db_path)
 rescue
 end
 
-File.delete(db_path_en)
-File.delete(db_path_ja)
-
 require 'sequel'
-db_en = Sequel.sqlite(db_path_en)
-db_ja = Sequel.sqlite(db_path_ja)
+db = Sequel.sqlite(db_path)
 
 def create_table(db)
   unless db.table_exists? :RubyKaigi2011
     db.create_table :RubyKaigi2011 do
       primary_key :_id
       string :day
-      string :room
+      string :room_en
+      string :room_ja
       string :start
       string :end
-      string :speaker
-      string :title
-      string :desc
+      string :speaker_en
+      string :speaker_ja
+      string :title_en
+      string :title_ja
+      string :desc_en
+      string :desc_ja
       string :lang
     end 
   end
@@ -36,8 +37,7 @@ def create_table(db)
     db[:android_metadata] << {:locale => 'en_US'}
   end
 end
-create_table(db_en)
-create_table(db_ja)
+create_table(db)
 
 require 'yaml'
 require 'date'
@@ -86,24 +86,18 @@ yamls.each { |yaml|
 
         lang = ( ev['language'] || '' ).gsub('English','en').gsub('Japanese','ja')
 
-        db_en[:RubyKaigi2011] << {
+        db[:RubyKaigi2011] << {
           :day => day,
-          :room => room_en,
+          :room_en => room_en,
+          :room_ja => room_ja,
           :start => start,
           :end => _end,
-          :title => title_en,
-          :speaker => speakers_en,
-          :desc => abstract_en,
-          :lang => lang
-        }
-        db_ja[:RubyKaigi2011] << {
-          :day => day,
-          :room => room_ja,
-          :start => start,
-          :end => _end,
-          :title => title_ja,
-          :speaker => speakers_ja,
-          :desc => abstract_ja,
+          :title_en => title_en,
+          :title_ja => title_ja,
+          :speaker_en => speakers_en,
+          :speaker_ja => speakers_ja,
+          :desc_en => abstract_en,
+          :desc_ja => abstract_ja,
           :lang => lang
         }
       } if event

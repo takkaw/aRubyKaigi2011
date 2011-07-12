@@ -33,6 +33,9 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 	private static ListView list_view;
 	private static EditText search_box;
 
+	private static int[] TO = { R.id.item_day, R.id.item_room, R.id.item_start,
+		R.id.item_end, R.id.item_title, R.id.item_speaker, 0, 0 };
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -76,17 +79,6 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 		Log.v("end","end");	
 	}
 
-	public static final String DAY = "day";
-	public static final String ROOM = "room";
-	public static final String START = "start";
-	public static final String END = "end";
-	public static final String TITLE = "title";
-	public static final String SPEAKER = "speaker";
-
-	private static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER };
-	private static int[] TO = { R.id.item_day, R.id.item_room, R.id.item_start,
-			R.id.item_end, R.id.item_title, R.id.item_speaker };
-
 	@Override
 	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
 			long arg3) {
@@ -124,7 +116,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 			lang = null;
 		Cursor cursor = dbHelper.formSearch(day, room, lang, keyword);
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
-				R.layout.item, cursor, FROM, TO);
+				R.layout.item, cursor, DBHelper.FROM, TO);
 		list_view.setAdapter(adapter);
 		dbHelper.close();
 	}

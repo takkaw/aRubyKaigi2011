@@ -12,16 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class Description extends ListActivity {
-	public static final String DAY = "day";
-	public static final String ROOM = "room";
-	public static final String START = "start";
-	public static final String END = "end";
-	public static final String TITLE = "title";
-	public static final String SPEAKER = "speaker";
-	public static final String DESC = "desc";
-	public static final String LANG = "lang";
-	private static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER,
-			DESC ,LANG};
+
 	private static int[] TO = { R.id.desc_day, R.id.desc_room, R.id.desc_start,
 			R.id.desc_end, R.id.desc_title, R.id.desc_speaker, R.id.desc_desc,
 			R.id.desc_lang };
@@ -31,12 +22,12 @@ public class Description extends ListActivity {
 		super.onCreate(savedInstanceState);
 
 		// setContentView(R.layout.main);
-
+		
 		int id = getIntent().getIntExtra("id", 0);
 		DBHelper dbHelper = new DBHelper(this);
 		Cursor cursor = dbHelper.idSearch(id);
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
-				R.layout.desc, cursor, FROM, TO);
+				R.layout.desc, cursor, DBHelper.FROM, TO);
 		setListAdapter(adapter);
 		dbHelper.close();
 
