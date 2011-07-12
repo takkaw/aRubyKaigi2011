@@ -2,10 +2,18 @@
 # coding : utf-8
 
 path = File.expand_path(File.dirname(__FILE__))
+begin
+  db_path_en = path + '/../assets/RubyKaigi2011en.db'
+  db_path_ja = path + '/../assets/RubyKaigi2011ja.db'
+rescue
+end
+
+File.delete(db_path_en)
+File.delete(db_path_ja)
 
 require 'sequel'
-db_en = Sequel.sqlite(path + '/../assets/RubyKaigi2011en.db')
-db_ja = Sequel.sqlite(path + '/../assets/RubyKaigi2011ja.db')
+db_en = Sequel.sqlite(db_path_en)
+db_ja = Sequel.sqlite(db_path_ja)
 
 def create_table(db)
   unless db.table_exists? :RubyKaigi2011
