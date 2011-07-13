@@ -4,6 +4,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,8 +27,14 @@ public class Description extends ListActivity {
 		int id = getIntent().getIntExtra("id", 0);
 		DBHelper dbHelper = new DBHelper(this);
 		Cursor cursor = dbHelper.idSearch(id);
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
-				R.layout.desc, cursor, DBHelper.FROM, TO);
+		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,	R.layout.desc, cursor, DBHelper.FROM, TO){
+			@Override
+			public void setViewText(TextView view, String text) {
+		        view.setAutoLinkMask(Linkify.WEB_URLS);
+		        view.setText(text);
+		    }
+		};
+
 		setListAdapter(adapter);
 		dbHelper.close();
 
