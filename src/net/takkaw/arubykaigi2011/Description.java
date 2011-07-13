@@ -15,7 +15,7 @@ public class Description extends ListActivity {
 
 	private static int[] TO = { R.id.desc_day, R.id.desc_room, R.id.desc_start,
 			R.id.desc_end, R.id.desc_title, R.id.desc_speaker, R.id.desc_desc,
-			R.id.desc_lang };
+			R.id.desc_lang ,R.id.desc_bio};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

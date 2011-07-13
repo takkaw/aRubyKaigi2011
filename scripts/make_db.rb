@@ -28,6 +28,8 @@ def create_table(db)
       string :desc_en
       string :desc_ja
       string :lang
+      string :speaker_bio_en
+      string :speaker_bio_ja
     end 
   end
   unless db.table_exists? :android_metadata
@@ -72,12 +74,26 @@ yamls.each { |yaml|
 
         speakers_en = ''
         speakers_ja = ''
+        speakers_bio_en = ''
+        speakers_bio_ja = ''
         if presenters = ev['presenters']
           presenters.each { |pre|
             speakers_en << ' / ' unless speakers_en == ''
             speakers_en << pre['name']['en'] 
             speakers_ja << ' / ' unless speakers_ja == ''
             speakers_ja << (pre['name']['ja'] || pre['name']['en']) 
+
+            bio_en = pre['name']['en']
+            bio_en << "\n(" + pre['affiliation']['en'] + ")" if pre['affiliation']['en']
+            bio_en << "\n" + pre['bio']['en'] if pre['bio']['en']
+            speakers_bio_en << "\n\n" unless speakers_bio_en == ''
+            speakers_bio_en << bio_en
+
+            bio_ja = pre['name']['ja'] || pre['name']['en']
+            bio_ja << "\n(" + (pre['affiliation']['ja'] || pre['affiliation']['en']) + ")" if (pre['affiliation']['ja'] || pre['affiliation']['en'])
+            bio_ja << "\n" + (pre['bio']['ja'] || pre['bio']['en']) if (pre['bio']['ja'] || pre['bio']['en'])
+            speakers_bio_ja << "\n\n" unless speakers_bio_ja == ''
+            speakers_bio_ja << bio_ja
           }
         end
         if abstract = ev['abstract']
@@ -104,7 +120,9 @@ yamls.each { |yaml|
           :speaker_ja => speakers_ja,
           :desc_en => abstract_en,
           :desc_ja => abstract_ja,
-          :lang => lang
+          :lang => lang,
+          :speaker_bio_en => speakers_bio_en,
+          :speaker_bio_ja => speakers_bio_ja
         }
       } if event
   }

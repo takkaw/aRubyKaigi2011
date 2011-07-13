@@ -4,4 +4,5 @@
         <string name="speaker">speaker_en</string>
         <string name="title">title_en</string>
         <string name="desc">desc_en</string>
+        <string name="bio">speaker_bio_en</string>
     </resources>

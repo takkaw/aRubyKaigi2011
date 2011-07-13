@@ -30,14 +30,16 @@ public class DBHelper extends SQLiteOpenHelper {
     	private static final String SPEAKER = "speaker_en";
     	private static final String DESC = "desc_en";
     	private static final String LANG = "lang";
+    	private static final String BIO = "speaker_bio_en";
 		
-		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG };
+		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG, BIO };
 		
 		public void makeCursorFrom(Resources res){
 			FROM[1] = res.getString(R.string.room);
 			FROM[4] = res.getString(R.string.title);
 			FROM[5] = res.getString(R.string.speaker);
 			FROM[6] = res.getString(R.string.desc);
+			FROM[8] = res.getString(R.string.bio);
 		}
 
 		public DBHelper(Context context) {
@@ -114,10 +116,11 @@ public class DBHelper extends SQLiteOpenHelper {
 			if( keyword != null ){
 				sql.append( ( sql.length() == 0 ) ? " where (" : " and (" ); 
 				sql.append(
-					String.format("%s like '%%%s%%' or %s like '%%%s%%' or %s like '%%%s%%' )",
+					String.format("%s like '%%%s%%' or %s like '%%%s%%' or %s like '%%%s%%' or %s like '%%%s%%')",
 						res.getString(R.string.title),keyword,
 						res.getString(R.string.speaker),keyword,
-						res.getString(R.string.desc),keyword
+						res.getString(R.string.desc),keyword,
+						res.getString(R.string.bio),keyword
 					)
 				);
 			}
