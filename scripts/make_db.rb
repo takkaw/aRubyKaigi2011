@@ -46,7 +46,7 @@ yamls = Dir.glob(path + '/rubykaigi/db/2011/room_timetables/*.yaml').sort!
 rooms_en = {'M' => 'Main Hall','S' => 'Sub Hall'}
 rooms_ja = {'M' => '大ホール','S' => '小ホール'}
 
-special_event = ['Open','Break','Lunch','Transit time','Party at Ikebukuro']
+special_event = ['Open','Break','Lunch','Transit time','Party at Ikebukuro (door open 19:30)']
 
 yamls.each { |yaml|
   y = YAML.load_file(yaml)
