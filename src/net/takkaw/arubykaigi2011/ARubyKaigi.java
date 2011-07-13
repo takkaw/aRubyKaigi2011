@@ -129,7 +129,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 			.show();
 			return true;
 		case R.id.menu_guide:
-			uri = Uri.parse("http://jp.rubyist.net/magazine/?preRubyKaigi2010-05");
+			uri = Uri.parse("http://jp.rubyist.net/magazine/?preRubyKaigi2011");
 			intent = new Intent(Intent.ACTION_VIEW,uri);
 			startActivity(intent);
 			return true;

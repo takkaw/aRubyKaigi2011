@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string
-		name="menu_guide_label">参加者のしおり</string>
+		name="menu_guide_label">るびま(直前特集号)</string>
 	<string
 		name="menu_tdiary_label">RubyKaigi日記</string>
 </resources>
