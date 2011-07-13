@@ -1,13 +1,20 @@
 package net.takkaw.arubykaigi2011;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.util.Linkify;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,7 +23,7 @@ public class Description extends ListActivity {
 
 	private static int[] TO = { R.id.desc_day, R.id.desc_room, R.id.desc_start,
 			R.id.desc_end, R.id.desc_title, R.id.desc_speaker, R.id.desc_desc,
-			R.id.desc_lang ,R.id.desc_bio};
+			R.id.desc_lang ,R.id.desc_bio ,R.id.desc_gravatar};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +40,23 @@ public class Description extends ListActivity {
 		        view.setAutoLinkMask(Linkify.WEB_URLS);
 		        view.setText(text);
 		    }
+			@Override
+			public void setViewImage(ImageView view, String text){
+				Log.v("gravatarDebug",text);
+				try {
+					Bitmap bm;
+					if(text.equals("")) {
+						bm = null;
+					}
+					else {
+						InputStream i = getResources().getAssets().open(text+".jpeg");
+						bm = BitmapFactory.decodeStream(i);
+					}
+					view.setImageBitmap(bm);					
+				} catch (IOException e) {
+					Log.v("gravatarError",text+".jpeg");
+				}
+			}
 		};
 
 		setListAdapter(adapter);

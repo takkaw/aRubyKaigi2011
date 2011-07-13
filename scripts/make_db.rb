@@ -29,6 +29,7 @@ unless db.table_exists? :RubyKaigi2011
     string :lang
     string :speaker_bio_en
     string :speaker_bio_ja
+    string :gravatar
   end 
 end
 unless db.table_exists? :android_metadata
@@ -48,6 +49,20 @@ rooms_ja = {'M' => '大ホール','S' => '小ホール'}
 
 special_event = ['Open','Break','Lunch','Transit time','Party at Ikebukuro (door open 19:30)']
 
+#for gravatar
+require 'open-uri'
+require 'RMagick'
+gravatar_size = 64
+
+gravatar_path = "#{path}/../assets"
+bow_path = "#{gravatar_path}/bow_face.jpeg"
+open('http://rubykaigi.org/images/bow_face.png'){|bow|
+  File.open(bow_path,'w') { |f|
+    f.write bow.read
+  }
+}
+Magick::Image.read(bow_path).first.resize_to_fit(gravatar_size,gravatar_size).write(bow_path)
+
 yamls.each { |yaml|
   y = YAML.load_file(yaml)
 
@@ -61,7 +76,6 @@ yamls.each { |yaml|
       day = slots['start'].day
       start = "%02d:%02d" % [slots['start'].hour, slots['start'].min]
       _end = "%02d:%02d" % [slots['end'].hour,slots['end'].min]
-      ev.to_s
 
       ev_yaml = path + '/rubykaigi/db/2011/events/%s.yaml' % ev 
       ev = YAML.load_file(ev_yaml)
@@ -73,7 +87,10 @@ yamls.each { |yaml|
       speakers_ja = ''
       speakers_bio_en = ''
       speakers_bio_ja = ''
+      gravatar = ''
+      gravatars = ''
       if presenters = ev['presenters']
+        gravatars = ''
         presenters.each { |pre|
           speakers_en << ' / ' unless speakers_en == ''
           speakers_en << pre['name']['en'] 
@@ -91,6 +108,26 @@ yamls.each { |yaml|
           bio_ja << "\n" + (pre['bio']['ja'] || pre['bio']['en']) if (pre['bio']['ja'] || pre['bio']['en'])
           speakers_bio_ja << "\n\n" unless speakers_bio_ja == ''
           speakers_bio_ja << bio_ja
+
+          if gravatar = pre['gravatar']
+            g_id = gravatar[0..7] # avoid too long file name
+            open("http://www.gravatar.com/avatar/#{gravatar}?s=#{gravatar_size}") { |g|
+              File.open("#{gravatar_path}/#{g_id}.jpeg",'w') { |f|
+                f.write g.read
+              }
+            }
+          else
+            g_id = 'bow_face'
+          end
+          unless gravatars == ''
+            #File.delete("#{gravatar_path}/#{gravatars}.jpeg") unless gravatar == 'bow_face'
+            list = Magick::ImageList.new("#{gravatar_path}/#{gravatars}.jpeg","#{gravatar_path}/#{g_id}.jpeg")
+            img = list.append(false) 
+            gravatars << g_id
+            img.write("#{gravatar_path}/#{gravatars}.jpeg")
+          else
+            gravatars = g_id
+          end
         }
       end
       if abstract = ev['abstract']
@@ -120,7 +157,8 @@ yamls.each { |yaml|
         :desc_ja => abstract_ja,
         :lang => lang,
         :speaker_bio_en => speakers_bio_en,
-        :speaker_bio_ja => speakers_bio_ja
+        :speaker_bio_ja => speakers_bio_ja,
+        :gravatar => gravatars
       }
     } if event
   }

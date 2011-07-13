@@ -31,8 +31,9 @@ public class DBHelper extends SQLiteOpenHelper {
     	private static final String DESC = "desc_en";
     	private static final String LANG = "lang";
     	private static final String BIO = "speaker_bio_en";
+    	private static final String GRAVATAR = "gravatar";
 		
-		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG, BIO };
+		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG, BIO, GRAVATAR };
 		
 		public void makeCursorFrom(Resources res){
 			FROM[1] = res.getString(R.string.room);

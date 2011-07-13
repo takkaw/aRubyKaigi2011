@@ -129,4 +129,8 @@
 		android:text="sample_speaker(sample_affiliation) : sample_bio"
 		android:textColor="#aaaaaa"
 		android:textSize="16sp"></TextView>
+	<ImageView
+	android:id="@+id/desc_gravatar"
+	android:layout_height="wrap_content"
+	android:layout_width="wrap_content"></ImageView>
 </LinearLayout>

@@ -32,7 +32,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 	private static EditText search_box;
 
 	private static int[] TO = { R.id.item_day, R.id.item_room, R.id.item_start,
-		R.id.item_end, R.id.item_title, R.id.item_speaker, 0, 0, 0 };
+		R.id.item_end, R.id.item_title, R.id.item_speaker, 0, 0, 0, 0 };
 	
 	/** Called when the activity is first created. */
 	@Override
