@@ -105,28 +105,12 @@
 				android:textSize="16sp"></TextView>
 		</LinearLayout>
 	</LinearLayout>
-	<LinearLayout
-		android:id="@+id/LinearLayout01"
+	<TextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:orientation="horizontal">
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textSize="16sp"
-			android:text="["></TextView>
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textSize="16sp"
-			android:text="sample_lang"
-			android:id="@+id/desc_lang"></TextView>
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="]"
-			android:textSize="16sp"></TextView>
-	</LinearLayout>
+		android:textSize="16sp"
+		android:text="sample_lang"
+		android:id="@+id/desc_lang"></TextView>
 	
 	<ImageView
 		android:id="@+id/descDivider"

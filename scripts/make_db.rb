@@ -103,6 +103,7 @@ yamls.each { |yaml|
         end
 
         lang = ( ev['language'] || '' ).gsub('English','en').gsub('Japanese','ja')
+        lang = "[%s]" % lang unless lang == ''
 
         special = special_event.include? title_en
 

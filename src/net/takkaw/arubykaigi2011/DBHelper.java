@@ -111,7 +111,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if( lang != null ){
 				sql.append( ( sql.length() == 0 ) ? " where " : " and " ); 
-				sql.append( String.format("lang like '%s'", lang));
+				sql.append( String.format("lang like '%%%s%%'", lang));
 			}
 			if( keyword != null ){
 				sql.append( ( sql.length() == 0 ) ? " where (" : " and (" ); 
