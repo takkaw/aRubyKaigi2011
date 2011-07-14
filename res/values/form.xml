@@ -2,4 +2,5 @@
 <resources>
     <string name="form_keyword">keyword</string>
     <string name="form_empty">event_missing</string>
+    <string name="favorite_empty">No data found.</string>
 </resources>

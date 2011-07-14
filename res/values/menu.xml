@@ -14,6 +14,8 @@
 		name="menu_info_message">This software is an unofficial RubyKaigi2011 program viewer.
 		Happy Kaiging!! by @takkaw :)</string>
 	<string
+		name="menu_favorite_label">Favorite</string>
+	<string
 		name="menu_dbdrop_label">DB drop(debug)</string>
 	<string
 		name="menu_share_label">share</string>
