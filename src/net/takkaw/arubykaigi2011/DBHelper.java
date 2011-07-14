@@ -11,7 +11,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
     	private final static String DB_NAME = "RubyKaigi2011.db";
@@ -138,6 +137,13 @@ public class DBHelper extends SQLiteOpenHelper {
 			
 			this.cursor = db.rawQuery(str_sql,null);
 			return cursor;
+		}
+		
+		public Cursor getFavoriteCursor(){
+			SQLiteDatabase db = this.getReadableDatabase();
+			String selection = FAVORITE + " = ?";
+			String selectionArgs[] = new String[]{"1"};
+			return db.query(DB_TABLE, null, selection, selectionArgs, null, null, "day, start");
 		}
 		
 		public Cursor idSearch( int id ){

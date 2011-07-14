@@ -4,4 +4,6 @@
 		name="menu_guide_label">るびま(直前特集号)</string>
 	<string
 		name="menu_tdiary_label">RubyKaigi日記</string>
+	<string
+		name="menu_favorite_label">お気に入り</string>
 </resources>

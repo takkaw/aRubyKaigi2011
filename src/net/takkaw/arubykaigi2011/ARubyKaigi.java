@@ -38,10 +38,6 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 	private static Spinner lang_selecter;
 	private static ListView list_view;
 	private static EditText search_box;
-	CustomAdapter adapter;
-
-	private static int[] TO = { R.id.item_day, R.id.item_room, R.id.item_start,
-		R.id.item_end, R.id.item_title, R.id.item_speaker, 0, 0, 0, 0 };
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -109,7 +105,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 		Cursor cursor = dbHelper.formSearch(day, room, lang, keyword);
 		this.startManagingCursor(cursor);
 //		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.item, cursor, DBHelper.FROM, TO);
-		adapter = new CustomAdapter(this, cursor);
+		CustomAdapter adapter = new CustomAdapter(this, cursor);
 		list_view.setAdapter(adapter);
 	}
 	
@@ -163,6 +159,10 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 		case R.id.menu_tdiary:
 			uri = Uri.parse("http://rubykaigi.tdiary.net/");
 			intent = new Intent(Intent.ACTION_VIEW,uri);
+			startActivity(intent);
+			return true;
+		case R.id.menu_favorite:
+			intent = new Intent(this, FavoriteActivity.class);
 			startActivity(intent);
 			return true;
 /*
