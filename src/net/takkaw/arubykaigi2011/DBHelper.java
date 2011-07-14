@@ -5,15 +5,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
     	private final static String DB_NAME = "RubyKaigi2011.db";
-    	private final static String DB_TABLE = "RubyKaigi2011";		
+    	public final static String DB_TABLE = "RubyKaigi2011";		
     	private final static int DB_VERSION = 1;
     	private final static String DB_PATH = "/data/data/net.takkaw.arubykaigi2011/databases/";
     	
@@ -32,8 +34,9 @@ public class DBHelper extends SQLiteOpenHelper {
     	private static final String LANG = "lang";
     	private static final String BIO = "speaker_bio_en";
     	private static final String GRAVATAR = "gravatar";
+    	private static final String FAVORITE = "favorite";
 		
-		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG, BIO, GRAVATAR };
+		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG, BIO, GRAVATAR, FAVORITE };
 		
 		public void makeCursorFrom(Resources res){
 			FROM[1] = res.getString(R.string.room);
@@ -74,6 +77,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				/* Nothing to do */
 			}
 			
+			
 			createDatabase = false;
 			
 			return super.getReadableDatabase();
@@ -89,7 +93,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			
 			return db;
 		}
-
+		
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			db.execSQL("drop table if exists "+DB_TABLE);
@@ -143,4 +147,17 @@ public class DBHelper extends SQLiteOpenHelper {
 			return cursor;
 		}
 		
+		public void updateFavorite(int id, boolean value){
+			ContentValues values = new ContentValues();
+			int favorite = 0;
+			if(value) favorite = 1;
+			values.put(FAVORITE, favorite);
+					
+			String whereClause = "_id = ?";
+			String[] whereArgs = {String.valueOf(id)};
+			
+			SQLiteDatabase db = this.getWritableDatabase();
+			db.update(DB_TABLE, values, whereClause, whereArgs);
+			db.close();
+		}
     }

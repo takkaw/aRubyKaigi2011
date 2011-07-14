@@ -22,3 +22,6 @@ local.properties
 ######
 
 scripts/rubykaigi
+
+.DS_Store
+.settings
