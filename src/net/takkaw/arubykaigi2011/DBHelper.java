@@ -36,6 +36,11 @@ public class DBHelper extends SQLiteOpenHelper {
     	private static final String FAVORITE = "favorite";
 		
 		public static String[] FROM = { DAY, ROOM, START, END, TITLE, SPEAKER, DESC, LANG, BIO, GRAVATAR, FAVORITE };
+
+		private static final String CREATE_FAVORITE_TABLE_SQL = 
+			"create table favorites "
+				+ "( id        integer, "
+				+ "  favorite  integer )";	
 		
 		public void makeCursorFrom(Resources res){
 			FROM[1] = res.getString(R.string.room);
@@ -55,6 +60,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			createDatabase = true;
+//			db.execSQL(CREATE_FAVORITE_TABLE_SQL);
 		}
 		
 		private SQLiteDatabase createDB(SQLiteDatabase db) {
@@ -78,7 +84,9 @@ public class DBHelper extends SQLiteOpenHelper {
 			
 			
 			createDatabase = false;
-			
+			db = super.getWritableDatabase();
+			db.execSQL(CREATE_FAVORITE_TABLE_SQL);
+			db.close();
 			return super.getReadableDatabase();
 		}
 
@@ -96,9 +104,12 @@ public class DBHelper extends SQLiteOpenHelper {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			db.execSQL("drop table if exists "+DB_TABLE);
+			if (newVersion == 2) db.execSQL(CREATE_FAVORITE_TABLE_SQL);
 //			onCreate(db);
 		}
     	
+		static String SQL_SELECT = "select * from " + DB_TABLE + " left outer join favorites on favorites.id = " + DB_TABLE + "._id";
+		
 		public Cursor formSearch(String day, String room, String lang,String keyword){
 			
 			if( this.cursor != null ) this.cursor.close();
@@ -107,49 +118,53 @@ public class DBHelper extends SQLiteOpenHelper {
 
 			if( day != null ){				
 				sql.append( ( sql.length() == 0 ) ? " where " : " and " );
-				sql.append( String.format("day like '%s'", day));
+				sql.append( String.format("%s.day like '%s'", DB_TABLE,day));
 			}
 			if( room != null ){
 				sql.append( ( sql.length() == 0 ) ? " where " : " and " ); 
-				sql.append( String.format("%s like '%s'", res.getString(R.string.room),room));
+				sql.append( String.format("%s.%s like '%s'", DB_TABLE,res.getString(R.string.room),room));
 			}
 			if( lang != null ){
 				sql.append( ( sql.length() == 0 ) ? " where " : " and " ); 
-				sql.append( String.format("lang like '%%%s%%'", lang));
+				sql.append( String.format("%s.lang like '%%%s%%'", DB_TABLE,lang));
 			}
 			if( keyword != null ){
 				sql.append( ( sql.length() == 0 ) ? " where (" : " and (" ); 
 				sql.append(
-					String.format("%s like '%%%s%%' or %s like '%%%s%%' or %s like '%%%s%%' or %s like '%%%s%%')",
-						res.getString(R.string.title),keyword,
-						res.getString(R.string.speaker),keyword,
-						res.getString(R.string.desc),keyword,
-						res.getString(R.string.bio),keyword
+					String.format("%s.%s like '%%%s%%' or %s.%s like '%%%s%%' or %s.%s like '%%%s%%' or %s.%s like '%%%s%%')",
+							DB_TABLE,res.getString(R.string.title),keyword,
+							DB_TABLE,res.getString(R.string.speaker),keyword,
+							DB_TABLE,res.getString(R.string.desc),keyword,
+							DB_TABLE,res.getString(R.string.bio),keyword
 					)
 				);
 			}
-			sql.append(" order by day,start");
-			sql.insert(0, "select * from " + DB_TABLE);
+			sql.append(String.format(" order by %s.day,%s.start",DB_TABLE,DB_TABLE));
+			sql.insert(0, SQL_SELECT);
 			
 			String str_sql = sql.toString();
-			
 			SQLiteDatabase db = this.getReadableDatabase();
-			
 			this.cursor = db.rawQuery(str_sql,null);
 			return cursor;
 		}
 		
 		public Cursor getFavoriteCursor(){
 			SQLiteDatabase db = this.getReadableDatabase();
-			String selection = FAVORITE + " = ?";
-			String selectionArgs[] = new String[]{"1"};
-			return db.query(DB_TABLE, null, selection, selectionArgs, null, null, "day, start");
+			StringBuilder sql = new StringBuilder();
+			sql.append(SQL_SELECT);
+			sql.append(" where favorites.favorite = 1");
+			sql.append(String.format(" order by %s.day,%s.start",DB_TABLE,DB_TABLE));
+			return db.rawQuery(sql.toString(), null);
 		}
 		
 		public Cursor idSearch( int id ){
 			SQLiteDatabase db = this.getReadableDatabase();
-			String str_sql = String.format("select * from %s where _id like %s",DB_TABLE,Integer.toString(id));
-			Cursor cursor = db.rawQuery(str_sql, null);
+			StringBuilder sql = new StringBuilder();
+			sql.append(SQL_SELECT);
+			sql.append(" where _id = ?");
+			sql.append(String.format(" order by %s.day,%s.start",DB_TABLE,DB_TABLE));
+			String[] args = new String[] {Integer.toString(id)};
+			Cursor cursor = db.rawQuery(sql.toString(), args);
 			return cursor;
 		}
 		
@@ -157,13 +172,15 @@ public class DBHelper extends SQLiteOpenHelper {
 			ContentValues values = new ContentValues();
 			int favorite = 0;
 			if(value) favorite = 1;
-			values.put(FAVORITE, favorite);
+			values.put("id", id);
+			values.put("favorite", favorite);
 					
-			String whereClause = "_id = ?";
+			String whereClause = "id = ?";
 			String[] whereArgs = {String.valueOf(id)};
 			
 			SQLiteDatabase db = this.getWritableDatabase();
-			db.update(DB_TABLE, values, whereClause, whereArgs);
+			db.delete("favorites", whereClause, whereArgs);
+			db.insert("favorites", null, values);
 			db.close();
 		}
     }

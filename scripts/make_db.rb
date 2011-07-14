@@ -30,7 +30,6 @@ unless db.table_exists? :RubyKaigi2011
     string :speaker_bio_en
     string :speaker_bio_ja
     string :gravatar
-    integer :favorite
   end 
 end
 unless db.table_exists? :android_metadata
