@@ -68,6 +68,12 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		requery();
+	}
+
+	@Override
 	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
 			long arg3) {
 		update_list();

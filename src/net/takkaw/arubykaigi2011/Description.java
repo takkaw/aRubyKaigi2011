@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -14,10 +15,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class Description extends ListActivity {
 
@@ -25,6 +30,7 @@ public class Description extends ListActivity {
 			R.id.desc_end, R.id.desc_title, R.id.desc_speaker, R.id.desc_desc,
 			R.id.desc_lang ,R.id.desc_bio ,R.id.desc_gravatar};
 
+	static DBHelper dbHelper;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,7 +38,7 @@ public class Description extends ListActivity {
 		// setContentView(R.layout.main);
 		
 		int id = getIntent().getIntExtra("id", 0);
-		DBHelper dbHelper = new DBHelper(this);
+		dbHelper = new DBHelper(this);
 		Cursor cursor = dbHelper.idSearch(id);
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,	R.layout.desc, cursor, DBHelper.FROM, TO){
 			@Override
@@ -40,6 +46,37 @@ public class Description extends ListActivity {
 		        view.setAutoLinkMask(Linkify.WEB_URLS);
 		        view.setText(text);
 		    }
+			
+			@Override
+			public void bindView(View v, Context context, Cursor cursor) {
+				// TODO Auto-generated method stub
+				super.bindView(v, context, cursor);
+				LinearLayout linearLayoutFavorite = (LinearLayout)v.findViewById(R.id.item_favoriteLayout);
+				
+				final ToggleButton toggleButtonFavolite = (ToggleButton)v.findViewById(R.id.item_favorite);
+				if (cursor.getInt(cursor.getColumnIndex("favorite")) == 1){
+					toggleButtonFavolite.setChecked(true);
+				}else{
+					toggleButtonFavolite.setChecked(false);
+				}
+				final int id = cursor.getInt(cursor.getColumnIndex("_id")); 
+				linearLayoutFavorite.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Boolean value = !toggleButtonFavolite.isChecked();
+						toggleButtonFavolite.setChecked(value);
+						Description.dbHelper.updateFavorite(id, value);
+					}
+				});
+				toggleButtonFavolite.setOnClickListener(new OnClickListener(){
+					@Override
+					public void onClick(View v) {
+						Boolean value = ((ToggleButton) v).isChecked();
+						Description.dbHelper.updateFavorite(id, value);
+					}
+				});
+			}
+
 			@Override
 			public void setViewImage(ImageView view, String text){
 				Log.v("gravatarDebug",text);
