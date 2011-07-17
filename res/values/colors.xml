@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="feature_text_bg">#00ffffff</color>
+  <color name="about_bg">#00ffffff</color>
+  <color name="basic1">#4d4d4d</color>
+  <color name="basic2">#a8a8a8</color>
+  
+  <color name="bubble_dark_background">#B2191919</color>
+  <color name="recording_time_elapsed_text">#FFFFFFFF</color>
+  <color name="recording_time_remaining_text">#FFFF0033</color>
+</resources>
