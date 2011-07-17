@@ -1,187 +1,198 @@
 #!/usr/bin/env ruby
 # coding : utf-8
 
-BASE_PATH = File.expand_path(File.dirname(__FILE__))
-db_path = BASE_PATH + '/../assets/RubyKaigi2011.db'
+Fetch_from_network = false
 
-begin
-File.delete(db_path)
-rescue
-end
+require 'pathname'
+BasePath = Pathname.new(__FILE__).parent.to_s 
 
 require 'sequel'
-DB = Sequel.sqlite(db_path)
-
-unless DB.table_exists? :RubyKaigi2011
-  DB.create_table :RubyKaigi2011 do
-    primary_key :_id
-    string :day
-    string :room_en
-    string :room_ja
-    string :start
-    string :end
-    string :speaker_en
-    string :speaker_ja
-    string :title_en
-    string :title_ja
-    string :desc_en
-    string :desc_ja
-    string :lang
-    string :speaker_bio_en
-    string :speaker_bio_ja
-    string :gravatar
-  end 
-end
-unless DB.table_exists? :android_metadata
-  DB.create_table :android_metadata do
-    text :locale
+class DB
+  Path = BasePath + '/../assets/RubyKaigi2011.db'
+  File.delete(Path) if Kernel.test(?e,Path)
+  def initialize
+    @@db = Sequel.sqlite(Path)
+    unless @@db.table_exists? :RubyKaigi2011
+      @@db.create_table :RubyKaigi2011 do
+        primary_key :_id
+        string :day
+        string :room_en
+        string :room_ja
+        string :start
+        string :end
+        string :speaker_en
+        string :speaker_ja
+        string :title_en
+        string :title_ja
+        string :desc_en
+        string :desc_ja
+        string :lang
+        string :speaker_bio_en
+        string :speaker_bio_ja
+        string :gravatar
+      end 
+    end
+    unless @@db.table_exists? :android_metadata
+      @@db.create_table :android_metadata do
+        text :locale
+      end
+      @@db[:android_metadata] << {:locale => 'en_US'}
+    end
   end
-  DB[:android_metadata] << {:locale => 'en_US'}
+
+  def self.write_db(data)
+    @@db[:RubyKaigi2011] << data
+  end
+
+  self.new
+
 end
 
-def write_db(data)
-  DB[:RubyKaigi2011] << data
+require 'open-uri'
+require 'RMagick'
+class Gravatar
+  Size = 64
+  Path = "#{BasePath}/../assets"
+  BowPath = "#{Path}/bow_face.jpeg"
+  def initialize
+    open('http://rubykaigi.org/images/bow_face.png'){|bow|
+      File.open(BowPath,'w') { |f|
+        f.write bow.read
+      }
+    } if Fetch_from_network
+    Magick::Image.read(BowPath).first.resize_to_fit(Size,Size).write(BowPath)
+  end
+  self.new
+end
+
+class Yaml_processor
+  def self.presenters(y)
+    speakers_en = ''
+    speakers_ja = ''
+    speakers_bio_en = ''
+    speakers_bio_ja = ''
+    gravatars = ''
+
+    y.each { |pre|
+      name_en = pre['name']['en']
+      speakers_en = speakers_en ? name_en : " / #{name_en}"
+
+      name_ja = pre['name']['ja'] || name_en
+      speakers_ja = speakers_ja ? name_ja : " / #{name_ja}"
+
+      bio_en = name_en + "\n"
+      bio_en << "(#{pre['affiliation']['en']})\n" if pre['affiliation']['en']
+      bio_en << "#{pre['bio']['en']}" if pre['bio']['en']
+      speakers_bio_en << "\n\n" unless speakers_bio_en == ''
+      speakers_bio_en << bio_en
+
+      bio_ja = name_ja + "\n"
+      bio_ja << "(#{(pre['affiliation']['ja'] || pre['affiliation']['en'])})\n" if (pre['affiliation']['ja'] || pre['affiliation']['en'])
+      bio_ja << "#{(pre['bio']['ja'] || pre['bio']['en'])}" if (pre['bio']['ja'] || pre['bio']['en'])
+      speakers_bio_ja << "\n\n" unless speakers_bio_ja == ''
+      speakers_bio_ja << bio_ja
+
+      speakers_bio_en.gsub! "#TODO" , ""
+      speakers_bio_ja.gsub! "#TODO" , ""
+
+      if gravatar = pre['gravatar']
+        g_id = gravatar[0..7] # avoid too long file name
+        open("http://www.gravatar.com/avatar/#{gravatar}?s=#{Gravatar::Size}") { |g|
+          File.open("#{Gravatar::Path}/#{g_id}.jpeg",'w') { |f|
+            f.write g.read
+          }
+        } if Fetch_from_network
+      else
+        g_id = 'bow_face'
+      end
+
+      unless gravatars == ''
+        if Fetch_from_network
+          img = Magick::ImageList.new(
+            "#{Gravatar::Path}/#{gravatars}.jpeg",
+            "#{Gravatar::Path}/#{g_id}.jpeg"
+          )
+          File.delete("#{Gravatar::Path}/#{gravatars}.jpeg") if gravatars != 'bow_face'
+          gravatars << g_id
+          img.append(false).write("#{Gravatar::Path}/#{gravatars}.jpeg")
+        end
+      else
+        gravatars = g_id
+      end
+    }
+
+    return [speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars]
+
+  end
+
+
+  def self.event(ev,day,room_en,room_ja,start,_end,parent_title)
+    title_en = ev['title']['en']
+    title_ja = ev['title']['ja'] || ev['title']['en']
+
+    if parent_title
+      title_en = "[#{parent_title}]\n#{title_en}"
+      title_ja = "[#{parent_title}]\n#{title_ja}"
+    end
+
+    presenters = ev['presenters']
+    speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars = Yaml_processor::presenters(presenters) if presenters
+
+    if abstract = ev['abstract']
+      abstract_en = abstract['en']
+      abstract_ja = abstract['ja'] || abstract_en
+      abstract_en = abstract_ja if abstract_en == 'TBD'
+
+      abstract_en.delete! "#TODO" if abstract_en
+      abstract_ja.delete! "#TODO" if abstract_ja
+    end 
+
+    lang = ( ev['language'] || '' ).gsub('English','en').gsub('Japanese','ja')
+    lang = "[#{lang}]" unless lang == ''
+
+    common = ['Open','Break','Lunch','Transit time','Party at Ikebukuro (door open 19:30)'].include? title_en
+
+    return if common && room_en == 'Sub Hall'
+
+    data = { 
+      :day => day,
+      :room_en => common ? '' : room_en,
+      :room_ja => common ? '' : room_ja,
+      :start => start,
+      :end => _end,
+      :title_en => title_en,
+      :title_ja => title_ja,
+      :speaker_en => speakers_en,
+      :speaker_ja => speakers_ja,
+      :desc_en => abstract_en,
+      :desc_ja => abstract_ja,
+      :lang => lang,
+      :speaker_bio_en => speakers_bio_en,
+      :speaker_bio_ja => speakers_bio_ja,
+      :gravatar => gravatars
+    }   
+    if sub_events = ev['sub_event_ids']
+      sub_events.each { |sub|
+        sub_yaml = "#{BasePath}/rubykaigi/db/2011/events/#{sub}.yaml"
+        sub_ev = YAML.load_file(sub_yaml)
+        self.event(sub_ev,day,room_en,room_ja,start,_end,title_en)
+      }
+    else
+      DB.write_db(data)
+    end
+
+  end
 end
 
 require 'yaml'
 require 'date'
-
-yamls = Dir.glob(BASE_PATH + '/rubykaigi/db/2011/room_timetables/*.yaml').sort!
-
-rooms_en = {'M' => 'Main Hall','S' => 'Sub Hall'}
-rooms_ja = {'M' => '大ホール','S' => '小ホール'}
-
-
-#for gravatar
-require 'open-uri'
-require 'RMagick'
-GRAVATAR_SIZE = 64
-GRAVATAR_PATH = "#{BASE_PATH}/../assets"
-bow_path = "#{GRAVATAR_PATH}/bow_face.jpeg"
-open('http://rubykaigi.org/images/bow_face.png'){|bow|
-  File.open(bow_path,'w') { |f|
-    f.write bow.read
-  }
-}
-Magick::Image.read(bow_path).first.resize_to_fit(GRAVATAR_SIZE,GRAVATAR_SIZE).write(bow_path)
-
-def process_presenters(y)
-  speakers_en = ''
-  speakers_ja = ''
-  speakers_bio_en = ''
-  speakers_bio_ja = ''
-  gravatars = ''
-
-  y.each { |pre|
-    name_en = pre['name']['en']
-    speakers_en = speakers_en ? name_en : " / #{name_en}"
-
-    name_ja = pre['name']['ja']
-    speakers_ja = speakers_ja ? (name_ja || name_en) : " / #{name_ja || name_en}"
-
-    bio_en = name_en + "\n"
-    bio_en << "(#{pre['affiliation']['en']})\n" if pre['affiliation']['en']
-    bio_en << "#{pre['bio']['en']}" if pre['bio']['en']
-    speakers_bio_en << "\n\n" unless speakers_bio_en == ''
-    speakers_bio_en << bio_en
-
-    bio_ja = ( name_ja || name_en ) + "\n"
-    bio_ja << "(#{(pre['affiliation']['ja'] || pre['affiliation']['en'])})\n" if (pre['affiliation']['ja'] || pre['affiliation']['en'])
-    bio_ja << "#{(pre['bio']['ja'] || pre['bio']['en'])}" if (pre['bio']['ja'] || pre['bio']['en'])
-    speakers_bio_ja << "\n\n" unless speakers_bio_ja == ''
-    speakers_bio_ja << bio_ja
-
-    speakers_bio_en.gsub! "#TODO" , ""
-    speakers_bio_ja.gsub! "#TODO" , ""
-
-    if gravatar = pre['gravatar']
-      g_id = gravatar[0..7] # avoid too long file name
-      open("http://www.gravatar.com/avatar/#{gravatar}?s=#{GRAVATAR_SIZE}") { |g|
-        File.open("#{GRAVATAR_PATH}/#{g_id}.jpeg",'w') { |f|
-          f.write g.read
-        }
-      }
-    else
-      g_id = 'bow_face'
-    end
-    unless gravatars == ''
-      #File.delete("#{gravatar_path}/#{gravatars}.jpeg") unless gravatar == 'bow_face'
-      list = Magick::ImageList.new("#{GRAVATAR_PATH}/#{gravatars}.jpeg","#{GRAVATAR_PATH}/#{g_id}.jpeg")
-      img = list.append(false)
-      gravatars << g_id
-      img.write("#{GRAVATAR_PATH}/#{gravatars}.jpeg")
-    else
-      gravatars = g_id
-    end
-  }
-
-  return [speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars]
-
-end
-
-SPECIAL_EVENT = ['Open','Break','Lunch','Transit time','Party at Ikebukuro (door open 19:30)']
-
-def process_event(ev,day,room_en,room_ja,start,_end,parent_title)
-  title_en = ev['title']['en']
-  title_ja = ev['title']['ja'] || ev['title']['en']
-
-  title_en = "[#{parent_title}]\n#{title_en}" if parent_title
-  title_ja = "[#{parent_title}]\n#{title_ja}" if parent_title
-
-  presenters = ev['presenters']
-  speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars = process_presenters(presenters) if presenters
-
-  if abstract = ev['abstract']
-    abstract_en = abstract['en']
-    abstract_ja = abstract['ja'] || abstract_en
-    abstract_en = abstract_ja if abstract_en == 'TBD'
-
-    abstract_en = "" if abstract_en == "#TODO"
-    abstract_ja = "" if abstract_ja == "#TODO"
-  end 
-
-  lang = ( ev['language'] || '' ).gsub('English','en').gsub('Japanese','ja')
-  lang = "[%s]" % lang unless lang == ''
-
-  special = SPECIAL_EVENT.include? title_en
-
-  return if special && room_en == 'Sub Hall'
-
-  data = { 
-    :day => day,
-    :room_en => special ? '' : room_en,
-    :room_ja => special ? '' : room_ja,
-    :start => start,
-    :end => _end,
-    :title_en => title_en,
-    :title_ja => title_ja,
-    :speaker_en => speakers_en,
-    :speaker_ja => speakers_ja,
-    :desc_en => abstract_en,
-    :desc_ja => abstract_ja,
-    :lang => lang,
-    :speaker_bio_en => speakers_bio_en,
-    :speaker_bio_ja => speakers_bio_ja,
-    :gravatar => gravatars
-  }   
-  if sub_events = ev['sub_event_ids']
-    sub_events.each { |sub|
-      sub_yaml = "#{BASE_PATH}/rubykaigi/db/2011/events/#{sub}.yaml"
-      sub_ev = YAML.load_file(sub_yaml)
-      process_event(sub_ev,day,room_en,room_ja,start,_end,title_en)
-    }
-  else
-    write_db(data)
-  end
-
-end
-
-yamls.each { |yaml|
+Dir.glob(BasePath + '/rubykaigi/db/2011/room_timetables/*.yaml').sort!.each { |yaml|
   y = YAML.load_file(yaml)
 
   day = y['date'].day
-  room_en = rooms_en[y['room_id']]
-  room_ja = rooms_ja[y['room_id']] || room_en
+
+  room_en = {'M' => 'Main Hall','S' => 'Sub Hall'}[y['room_id']]
+  room_ja = {'M' => '大ホール','S' => '小ホール'}[y['room_id']] || room_en
 
   y['timeslots'].each { |slots|
     event = slots['event_ids']
@@ -190,95 +201,17 @@ yamls.each { |yaml|
       start = "%02d:%02d" % [slots['start'].hour, slots['start'].min]
       _end = "%02d:%02d" % [slots['end'].hour,slots['end'].min]
 
-      ev_yaml = "#{BASE_PATH}/rubykaigi/db/2011/events/#{ev}.yaml" 
-      ev = YAML.load_file(ev_yaml)
+      ev = YAML.load_file("#{BasePath}/rubykaigi/db/2011/events/#{ev}.yaml")
 
-      process_event(ev,day,room_en,room_ja,start,_end,nil)
-
+      Yaml_processor.event(ev,day,room_en,room_ja,start,_end,nil)
 
     } if event
   }
 }
 
-# add auto graph event
-write_db( 
-  :day => '16',
-  :room_en => "Junkdo",
-  :room_ja => "ジュンク堂書店",
-  :start => "12:00",
-  :end => "13:30",
-  :title_ja => "[サイン会]
-  『7つの言語 7つの世界』",
-  :title_en => "[Autograph session]
-  『7つの言語 7つの世界』",
-  :speaker_en => "まつもとゆきひろ",
-  :speaker_ja => "まつもとゆきひろ",
-  :desc_en => "",
-  :desc_ja => "",
-  :lang => "Japanese",
-  :speaker_bio_en => "",
-  :speaker_bio_ja => "",
-  :gravatar => ""
-)
-
-write_db( 
-  :day => '17',
-  :room_en => "Junkdo",
-  :room_ja => "ジュンク堂書店",
-  :start => "12:00",
-  :end => "13:30",
-  :title_ja => "[サイン会]
-  『Rails3レシピブック 190の技』（ソフトバンク クリエイティブ)",
-  :title_en => "[Autograph session]
-  『Rails3レシピブック 190の技』（ソフトバンク クリエイティブ)",
-  :speaker_en => "高橋征義, 松田明, 諸橋恭介",
-  :speaker_ja => "高橋征義, 松田明, 諸橋恭介",
-  :desc_en => "",
-  :desc_ja => "",
-  :lang => "Japanese",
-  :speaker_bio_en => "",
-  :speaker_bio_ja => "",
-  :gravatar => ""
-)
-
-write_db( 
-  :day => '17',
-  :room_en => "Junkdo",
-  :room_ja => "ジュンク堂書店",
-  :start => "15:40",
-  :end => "16:10",
-  :title_ja => "[サイン会]
-  『ウェブオペレーション』(オライリー・ジャパン))",
-  :title_en => "[Autograph session]
-  『ウェブオペレーション』(オライリー・ジャパン))",
-  :speaker_en => "角征典,濱崎健吾",
-  :speaker_ja => "角征典,濱崎健吾",
-  :desc_en => "",
-  :desc_ja => "",
-  :lang => "Japanese",
-  :speaker_bio_en => "",
-  :speaker_bio_ja => "",
-  :gravatar => ""
-)
-
-write_db( 
-  :day => '18',
-  :room_en => "Junkdo",
-  :room_ja => "ジュンク堂書店",
-  :start => "12:00",
-  :end => "13:30",
-  :title_ja => "[サイン会]
-  『アジャイルサムライ』(オーム社))",
-  :title_en => "[Autograph session]
-  『アジャイルサムライ』(オーム社))",
-  :speaker_en => "西村直人, 角谷信太郎",
-  :speaker_ja => "西村直人, 角谷信太郎",
-  :desc_en => "",
-  :desc_ja => "",
-  :lang => "Japanese",
-  :speaker_bio_en => "",
-  :speaker_bio_ja => "",
-  :gravatar => ""
-)
-
+# add autograph events
+require "#{BasePath}/autograph_event.rb"
+AUTOGRAPH_EVENTS.each { |event|
+  DB.write_db(event)
+}
 
