@@ -36,54 +36,52 @@
 		android:layout_width="match_parent" android:layout_height="wrap_content"
 		android:orientation="vertical" android:padding="5dip">
 		<LinearLayout android:focusableInTouchMode="false"
-			android:id="@+id/desc_descLayout" android:focusable="false" android:orientation="horizontal"
-			android:layout_height="wrap_content" android:layout_width="fill_parent">
+			android:id="@+id/desc_descLayout" android:focusable="false"
+			android:orientation="horizontal" android:layout_height="wrap_content"
+			android:layout_width="fill_parent">
 			<LinearLayout android:id="@+id/desc_titleLayout"
-				android:orientation="vertical"
-				android:layout_height="wrap_content" android:layout_width="fill_parent">
+				android:orientation="vertical" android:layout_height="wrap_content"
+				android:layout_width="fill_parent">
 				<LinearLayout android:id="@+id/linearLayout2"
-					android:layout_height="wrap_content" android:layout_width="fill_parent">
+					android:layout_height="wrap_content" android:layout_width="fill_parent"
+					android:gravity="center_vertical">
 					<TextView android:id="@+id/desc_title"
 						android:layout_height="wrap_content" android:textSize="22sp"
-						android:text="sample_title" android:textColor="#ffffff" android:layout_width="0dip" android:layout_weight="1"></TextView>
+						android:text="sample_title" android:layout_width="0dip"
+						android:layout_weight="1"></TextView>
 					<LinearLayout android:layout_width="wrap_content"
-						android:clickable="true"
-						android:focusable="false" android:id="@+id/item_favoriteLayout"
-						android:gravity="top|center_horizontal" android:layout_height="wrap_content">
+						android:clickable="true" android:focusable="false"
+						android:id="@+id/item_favoriteLayout" android:gravity="top|center_horizontal"
+						android:layout_height="wrap_content">
 						<ToggleButton android:layout_width="wrap_content"
 							android:layout_height="wrap_content" android:background="@drawable/btn_star"
 							android:textOn="" android:textOff="" android:id="@+id/item_favorite"
 							android:focusable="false" android:layout_margin="5dip" />
 					</LinearLayout>
 				</LinearLayout>
-				<LinearLayout android:id="@+id/desc_subLayout"
-					android:layout_width="wrap_content" android:orientation="horizontal"
-					android:layout_height="wrap_content">
-					<TextView android:id="@+id/desc_room"
-						android:layout_height="wrap_content" android:textSize="20sp"
-						android:text="sample_room" android:layout_width="wrap_content"
-						android:layout_marginRight="10sp" android:textColor="#aaaaaa"></TextView>
-				</LinearLayout>
+				<TextView android:id="@+id/desc_room"
+					android:layout_height="wrap_content" android:textSize="20sp"
+					android:text="sample_room" android:layout_width="wrap_content"
+					android:layout_marginRight="10sp" android:textColor="#8A8786"></TextView>
 				<TextView android:id="@+id/desc_speaker"
 					android:layout_height="wrap_content" android:textSize="20sp"
 					android:text="sample_speaker" android:layout_width="wrap_content"
 					android:textColor="@color/ruby"></TextView>
+				<ImageView android:src="@drawable/horizontal_line"
+					android:layout_width="fill_parent" android:layout_height="10dip" />
 				<TextView android:id="@+id/desc_desc"
 					android:layout_height="wrap_content" android:textSize="16sp"
-					android:text="sample_description" android:layout_width="wrap_content"
-					android:textColor="#ffffff"></TextView>
+					android:text="sample_description" android:layout_width="wrap_content"></TextView>
 			</LinearLayout>
 		</LinearLayout>
-		<TextView android:id="@+id/desc_lang" android:layout_height="wrap_content"
-			android:textSize="16sp" android:text="sample_lang"
-			android:layout_width="wrap_content"></TextView>
-		<ImageView android:scaleType="fitXY"
-			android:layout_marginLeft="10dip" android:src="@android:drawable/divider_horizontal_dark"
-			android:id="@+id/descDivider" android:layout_width="fill_parent"
-			android:layout_marginRight="10dip" android:layout_height="1dip"></ImageView>
+		<ImageView android:src="@drawable/horizontal_line"
+			android:layout_width="fill_parent" android:layout_height="10dip" />
+		<TextView android:id="@+id/desc_lang"
+			android:layout_height="wrap_content" android:textSize="16sp"
+			android:text="sample_lang" android:layout_width="wrap_content"></TextView>
 		<TextView android:id="@+id/desc_bio" android:layout_height="wrap_content"
 			android:textSize="16sp" android:text="sample_speaker(sample_affiliation) : sample_bio"
-			android:layout_width="wrap_content" android:textColor="#aaaaaa"></TextView>
+			android:layout_width="wrap_content" android:textColor="#8A8786"></TextView>
 		<ImageView android:id="@+id/desc_gravatar"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"></ImageView>
 	</LinearLayout>
