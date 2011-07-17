@@ -10,41 +10,37 @@ require 'sequel'
 class DB
   Path = BasePath + '/../assets/RubyKaigi2011.db'
   File.delete(Path) if Kernel.test(?e,Path)
-  def initialize
-    @@db = Sequel.sqlite(Path)
-    unless @@db.table_exists? :RubyKaigi2011
-      @@db.create_table :RubyKaigi2011 do
-        primary_key :_id
-        string :day
-        string :room_en
-        string :room_ja
-        string :start
-        string :end
-        string :speaker_en
-        string :speaker_ja
-        string :title_en
-        string :title_ja
-        string :desc_en
-        string :desc_ja
-        string :lang
-        string :speaker_bio_en
-        string :speaker_bio_ja
-        string :gravatar
-      end 
+  @@db = Sequel.sqlite(Path)
+  unless @@db.table_exists? :RubyKaigi2011
+    @@db.create_table :RubyKaigi2011 do
+      primary_key :_id
+      string :day
+      string :room_en
+      string :room_ja
+      string :start
+      string :end
+      string :speaker_en
+      string :speaker_ja
+      string :title_en
+      string :title_ja
+      string :desc_en
+      string :desc_ja
+      string :lang
+      string :speaker_bio_en
+      string :speaker_bio_ja
+      string :gravatar
+    end 
+  end
+  unless @@db.table_exists? :android_metadata
+    @@db.create_table :android_metadata do
+      text :locale
     end
-    unless @@db.table_exists? :android_metadata
-      @@db.create_table :android_metadata do
-        text :locale
-      end
-      @@db[:android_metadata] << {:locale => 'en_US'}
-    end
+    @@db[:android_metadata] << {:locale => 'en_US'}
   end
 
   def self.write_db(data)
     @@db[:RubyKaigi2011] << data
   end
-
-  self.new
 
 end
 
@@ -66,14 +62,14 @@ class Gravatar
 end
 
 class Yaml_processor
-  def self.presenters(y)
+  def self.presenters(yaml)
     speakers_en = ''
     speakers_ja = ''
     speakers_bio_en = ''
     speakers_bio_ja = ''
     gravatars = ''
 
-    y.each { |pre|
+    yaml.each { |pre|
       name_en = pre['name']['en']
       speakers_en = speakers_en ? name_en : " / #{name_en}"
 
@@ -128,15 +124,17 @@ class Yaml_processor
 
   def self.event(ev,day,room_en,room_ja,start,_end,parent_title)
     title_en = ev['title']['en']
-    title_ja = ev['title']['ja'] || ev['title']['en']
+    title_ja = ev['title']['ja'] || title_en
 
     if parent_title
-      title_en = "[#{parent_title}]\n#{title_en}"
-      title_ja = "[#{parent_title}]\n#{title_ja}"
+      title_format = "[#{parent_title}]\n%s"
+      title_en = title_format % title_en
+      title_ja = title_format % title_ja
     end
 
     presenters = ev['presenters']
-    speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars = Yaml_processor::presenters(presenters) if presenters
+    speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars = 
+      Yaml_processor::presenters(presenters) if presenters
 
     if abstract = ev['abstract']
       abstract_en = abstract['en']
@@ -150,14 +148,14 @@ class Yaml_processor
     lang = ( ev['language'] || '' ).gsub('English','en').gsub('Japanese','ja')
     lang = "[#{lang}]" unless lang == ''
 
-    common = ['Open','Break','Lunch','Transit time','Party at Ikebukuro (door open 19:30)'].include? title_en
+    common_event = ['Open','Break','Lunch','Transit time','Party at Ikebukuro (door open 19:30)'].include? title_en
 
-    return if common && room_en == 'Sub Hall'
+    return if common_event && room_en == 'Sub Hall'
 
     data = { 
       :day => day,
-      :room_en => common ? '' : room_en,
-      :room_ja => common ? '' : room_ja,
+      :room_en => common_event ? '' : room_en,
+      :room_ja => common_event ? '' : room_ja,
       :start => start,
       :end => _end,
       :title_en => title_en,
