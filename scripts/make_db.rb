@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # coding : utf-8
 
-Fetch_from_network = false
+Fetch_from_network = true
 
 require 'pathname'
 BasePath = Pathname.new(__FILE__).parent.to_s 
@@ -63,18 +63,18 @@ end
 
 class Yaml_processor
   def self.presenters(yaml)
-    speakers_en = ''
-    speakers_ja = ''
+    speakers_en = []
+    speakers_ja = []
     speakers_bio_en = ''
     speakers_bio_ja = ''
     gravatars = ''
 
     yaml.each { |pre|
       name_en = pre['name']['en']
-      speakers_en = speakers_en ? name_en : " / #{name_en}"
+      speakers_en << name_en
 
       name_ja = pre['name']['ja'] || name_en
-      speakers_ja = speakers_ja ? name_ja : " / #{name_ja}"
+      speakers_ja << name_ja
 
       bio_en = name_en + "\n"
       bio_en << "(#{pre['affiliation']['en']})\n" if pre['affiliation']['en']
@@ -116,6 +116,9 @@ class Yaml_processor
         gravatars = g_id
       end
     }
+
+    speakers_en = speakers_en.join(' , ')
+    speakers_ja = speakers_ja.join(' , ')
 
     return [speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars]
 
