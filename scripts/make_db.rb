@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # coding : utf-8
 
-Fetch_from_network = ARGV[0]
+Fetch_from_network = true
 
 require 'pathname'
 BasePath = Pathname.new(__FILE__).parent.to_s 
@@ -50,79 +50,61 @@ class Gravatar
   Size = 64
   Path = "#{BasePath}/../assets"
   BowPath = "#{Path}/bow_face.jpeg"
-  def initialize
-    if Fetch_from_network
-      open('http://rubykaigi.org/images/bow_face.png'){|bow|
-        File.open(BowPath,'w') { |f|
-          f.write bow.read
-        }
+  if Fetch_from_network
+    open('http://rubykaigi.org/images/bow_face.png'){|bow|
+      File.open(BowPath,'w') { |f|
+        f.write bow.read
       }
-      Magick::Image.read(BowPath).first.resize_to_fit(Size,Size).write(BowPath)
+    }
+    Magick::Image.read(BowPath).first.resize_to_fit(Size,Size).write(BowPath)
+  end
+
+  def self.fetch(gravatars)
+    gravatars.each { |gra_org|
+      open("http://www.gravatar.com/avatar/#{gra_org}?s=#{Gravatar::Size}") { |g|
+        File.open("#{Gravatar::Path}/#{gra_org[0..7]}.jpeg",'w') { |f|
+          f.write g.read
+        }
+      } unless gra_org == 'bow_face' 
+    }
+
+    if gravatars.size > 1
+      list = gravatars.map{|g| "#{Gravatar::Path}/#{g[0..7]}.jpeg"}
+      list = Magick::ImageList.new( *list )
+      list.append(false).write("#{Gravatar::Path}/#{ gravatars.map{|g| g[0..7]}.join }.jpeg")
     end
   end
-  self.new
+
 end
 
 class Yaml_processor
   def self.presenters(yaml)
-    speakers_en = []
-    speakers_ja = []
-    speakers_bio_en = ''
-    speakers_bio_ja = ''
-    gravatars = ''
+    pres = yaml.map { |pre|
+      affi = pre['affiliation']
 
-    yaml.each { |pre|
-      name_en = pre['name']['en']
-      speakers_en << name_en
-
-      name_ja = pre['name']['ja'] || name_en
-      speakers_ja << name_ja
-
-      bio_en = name_en + "\n"
-      bio_en << "(#{pre['affiliation']['en']})\n" if pre['affiliation']['en']
+      speaker_en = pre['name']['en']
+      bio_en = speaker_en + "\n"
+      bio_en << "(#{affi['en']})\n" if affi['en']
       bio_en << "#{pre['bio']['en']}" if pre['bio']['en']
-      speakers_bio_en << "\n\n" unless speakers_bio_en == ''
-      speakers_bio_en << bio_en
 
-      bio_ja = name_ja + "\n"
-      bio_ja << "(#{(pre['affiliation']['ja'] || pre['affiliation']['en'])})\n" if (pre['affiliation']['ja'] || pre['affiliation']['en'])
+      speaker_ja = pre['name']['ja'] || speaker_en
+      bio_ja = speaker_ja + "\n"
+      bio_ja << "(#{(affi['ja'] || affi['en'])})\n" if (affi['ja'] || affi['en'])
       bio_ja << "#{(pre['bio']['ja'] || pre['bio']['en'])}" if (pre['bio']['ja'] || pre['bio']['en'])
-      speakers_bio_ja << "\n\n" unless speakers_bio_ja == ''
-      speakers_bio_ja << bio_ja
 
-      speakers_bio_en.gsub! "#TODO" , ""
-      speakers_bio_ja.gsub! "#TODO" , ""
+      bio_en.delete "#TODO"
+      bio_ja.delete "#TODO"
 
-      if gravatar = pre['gravatar']
-        g_id = gravatar[0..7] # avoid too long file name
-        open("http://www.gravatar.com/avatar/#{gravatar}?s=#{Gravatar::Size}") { |g|
-          File.open("#{Gravatar::Path}/#{g_id}.jpeg",'w') { |f|
-            f.write g.read
-          }
-        } if Fetch_from_network
-      else
-        g_id = 'bow_face'
-      end
+      gravatar = pre['gravatar'] || 'bow_face'
 
-      unless gravatars == ''
-        if Fetch_from_network
-          img = Magick::ImageList.new(
-            "#{Gravatar::Path}/#{gravatars}.jpeg",
-            "#{Gravatar::Path}/#{g_id}.jpeg"
-          )
-          File.delete("#{Gravatar::Path}/#{gravatars}.jpeg") if gravatars != 'bow_face'
-          gravatars << g_id
-          img.append(false).write("#{Gravatar::Path}/#{gravatars}.jpeg")
-        end
-      else
-        gravatars = g_id
-      end
-    }
+      [speaker_en,speaker_ja,bio_en,bio_ja,gravatar]
+    }.transpose
 
-    speakers_en = speakers_en.join(' , ')
-    speakers_ja = speakers_ja.join(' , ')
-
-    return [speakers_en,speakers_ja,speakers_bio_en,speakers_bio_ja,gravatars]
+    gravatars = pres[4]
+    Gravatar.fetch gravatars if Fetch_from_network
+    gravatars.map! {|g| g[0..7] }
+    
+    [ pres[0].join(' , ') , pres[1].join(' , ') , pres[2].join("\n\n") , pres[3].join("\n\n") , pres[4].join]
 
   end
 
