@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # coding : utf-8
 
-Fetch_from_network = true
+Fetch_from_network = ARGV[0]
 
 require 'pathname'
 BasePath = Pathname.new(__FILE__).parent.to_s 
@@ -51,12 +51,14 @@ class Gravatar
   Path = "#{BasePath}/../assets"
   BowPath = "#{Path}/bow_face.jpeg"
   def initialize
-    open('http://rubykaigi.org/images/bow_face.png'){|bow|
-      File.open(BowPath,'w') { |f|
-        f.write bow.read
+    if Fetch_from_network
+      open('http://rubykaigi.org/images/bow_face.png'){|bow|
+        File.open(BowPath,'w') { |f|
+          f.write bow.read
+        }
       }
-    } if Fetch_from_network
-    Magick::Image.read(BowPath).first.resize_to_fit(Size,Size).write(BowPath)
+      Magick::Image.read(BowPath).first.resize_to_fit(Size,Size).write(BowPath)
+    end
   end
   self.new
 end
