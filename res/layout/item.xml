@@ -26,27 +26,29 @@
 			android:layout_height="wrap_content" android:text="19:00"
 			android:textColor="#ffffff" android:id="@+id/item_end"></TextView>
 	</LinearLayout>
-	<LinearLayout android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:orientation="horizontal"
-		android:id="@+id/item_descLayout">
+	<LinearLayout android:layout_height="wrap_content" android:orientation="horizontal"
+		android:id="@+id/item_descLayout" android:layout_width="fill_parent" android:gravity="center_vertical" android:minHeight="50dip">
 		<LinearLayout android:layout_width="wrap_content"
 			android:layout_height="fill_parent" android:clickable="true"
-			android:focusable="false" android:id="@+id/item_favoriteLayout" android:gravity="top|center_horizontal">
+			android:focusable="false" android:id="@+id/item_favoriteLayout" android:gravity="center">
 			<ToggleButton android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:background="@drawable/btn_star"
 				android:textOn=""
-				android:textOff="" android:id="@+id/item_favorite" android:focusable="false" android:layout_margin="5dip"/>
+				android:textOff="" android:id="@+id/item_favorite" android:focusable="false" 
+				android:layout_marginLeft="5dip"/>
 		</LinearLayout>
 		<LinearLayout android:id="@+id/item_titleLayout"
-			android:layout_width="wrap_content" android:orientation="vertical"
-			android:layout_height="wrap_content">
-			<TextView android:textSize="20sp" android:textColor="#ffffff"
+			android:layout_width="0dip" android:orientation="vertical"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingLeft="10dip">
+			<TextView android:textSize="20sp"
 				android:layout_height="wrap_content" android:text="sample_title"
 				android:id="@+id/item_title" android:layout_width="wrap_content"></TextView>
 			<LinearLayout android:id="@+id/item_subLayout"
 				android:layout_width="wrap_content" android:orientation="horizontal"
 				android:layout_height="wrap_content">
-				<TextView android:textColor="#aaaaaa"
+				<TextView android:textColor="#8A8786"
 					android:layout_height="wrap_content" android:text="sample_room"
 					android:layout_marginRight="10sp" android:id="@+id/item_room"
 					android:layout_width="wrap_content"></TextView>

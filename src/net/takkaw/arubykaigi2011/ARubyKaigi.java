@@ -201,18 +201,38 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 			TextView textViewTitle = (TextView)v.findViewById(R.id.item_title);
 			TextView textViewSpeaker = (TextView)v.findViewById(R.id.item_speaker);
 			
-			textViewDay.setText(cursor.getString(cursor.getColumnIndex("day")));
+			String day = cursor.getString(cursor.getColumnIndex("day"));
+			String start = cursor.getString(cursor.getColumnIndex("start"));
+			String end = cursor.getString(cursor.getColumnIndex("end"));
+			textViewDay.setText(day);
+			textViewStart.setText(start);
+			textViewEnd.setText(end);
+			
+			String room = "";
+			String desc = "";
+			String speaker = "";
+			String speakerBio = "";
 			if (Locale.getDefault().equals(Locale.JAPANESE) || Locale.getDefault().equals(Locale.JAPAN)){
-				textViewRoom.setText(cursor.getString(cursor.getColumnIndex("room_ja")));
+				room = cursor.getString(cursor.getColumnIndex("room_ja"));
+				desc = cursor.getString(cursor.getColumnIndex("desc_ja"));
+				speaker = cursor.getString(cursor.getColumnIndex("speaker_ja"));
+				speakerBio = cursor.getString(cursor.getColumnIndex("speaker_bio_ja"));
 				textViewTitle.setText(cursor.getString(cursor.getColumnIndex("title_ja")));
-				textViewSpeaker.setText(cursor.getString(cursor.getColumnIndex("speaker_ja")));
 			} else {
-				textViewRoom.setText(cursor.getString(cursor.getColumnIndex("room_en")));
+				room = cursor.getString(cursor.getColumnIndex("room_en"));
+				desc = cursor.getString(cursor.getColumnIndex("desc_ja"));
+				speaker = cursor.getString(cursor.getColumnIndex("speaker_en"));
+				speakerBio = cursor.getString(cursor.getColumnIndex("speaker_bio_en"));
 				textViewTitle.setText(cursor.getString(cursor.getColumnIndex("title_en")));
-				textViewSpeaker.setText(cursor.getString(cursor.getColumnIndex("speaker_en")));
 			}
-			textViewStart.setText(cursor.getString(cursor.getColumnIndex("start")));
-			textViewEnd.setText(cursor.getString(cursor.getColumnIndex("end")));
+			textViewRoom.setText(room);
+			textViewSpeaker.setText(speaker);
+			LinearLayout subLauout = (LinearLayout)v.findViewById(R.id.item_subLayout);
+			if (room.length() == 0 && speaker.length() == 0){
+				subLauout.setVisibility(View.GONE);
+			} else {
+				subLauout.setVisibility(View.VISIBLE);
+			}
 			LinearLayout linearLayoutFavorite = (LinearLayout)v.findViewById(R.id.item_favoriteLayout);
 			
 			final ToggleButton toggleButtonFavolite = (ToggleButton)v.findViewById(R.id.item_favorite);
@@ -239,6 +259,25 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 					ARubyKaigi.this.requery();
 				}
 			});
+
+			if ((desc == null ||desc.length() == 0) && (speakerBio == null || speakerBio.length() == 0)){
+				v.setClickable(true);
+				linearLayoutFavorite.setVisibility(View.INVISIBLE);
+			} else {
+				v.setClickable(false);
+				linearLayoutFavorite.setVisibility(View.VISIBLE);
+			}
+			
+			LinearLayout timeLayout = (LinearLayout)v.findViewById(R.id.item_timeLayout);
+			if (cursor.moveToPrevious()){
+				if (day.equals(cursor.getString(cursor.getColumnIndex("day"))) 
+						&& start.equals(cursor.getString(cursor.getColumnIndex("start"))) 
+						&& end.equals(cursor.getString(cursor.getColumnIndex("end")))){
+					timeLayout.setVisibility(View.GONE);
+				}else{
+					timeLayout.setVisibility(View.VISIBLE);
+				}
+			}
 		}
 
 		@Override
