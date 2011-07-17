@@ -28,7 +28,7 @@ public class Description extends ListActivity {
 
 	private static int[] TO = { R.id.desc_day, R.id.desc_room, R.id.desc_start,
 			R.id.desc_end, R.id.desc_title, R.id.desc_speaker, R.id.desc_desc,
-			R.id.desc_lang ,R.id.desc_bio ,R.id.desc_gravatar};
+			R.id.desc_lang ,R.id.desc_bio, R.id.desc_gravatar };
 
 	static DBHelper dbHelper;
 	@Override
@@ -79,19 +79,20 @@ public class Description extends ListActivity {
 
 			@Override
 			public void setViewImage(ImageView view, String text){
-				Log.v("gravatarDebug",text);
-				try {
-					Bitmap bm;
-					if(text.equals("")) {
-						bm = null;
+				if (view.getId() == R.id.desc_gravatar){
+					try {
+						Bitmap bm;
+						if(text.equals("")) {
+							bm = null;
+						}
+						else {
+							InputStream i = getResources().getAssets().open(text+".jpeg");
+							bm = BitmapFactory.decodeStream(i);
+						}
+						view.setImageBitmap(bm);					
+					} catch (IOException e) {
+						Log.v("gravatarError",text+".jpeg");
 					}
-					else {
-						InputStream i = getResources().getAssets().open(text+".jpeg");
-						bm = BitmapFactory.decodeStream(i);
-					}
-					view.setImageBitmap(bm);					
-				} catch (IOException e) {
-					Log.v("gravatarError",text+".jpeg");
 				}
 			}
 		};
@@ -102,6 +103,7 @@ public class Description extends ListActivity {
 		getListView().setClickable(false);
 		getListView().setFocusable(false);
 		getListView().setFocusableInTouchMode(false);
+		getListView().setDivider(null);
 		// Toast.makeText(this, Integer.toString(id),
 		// Toast.LENGTH_SHORT).show();
 	}

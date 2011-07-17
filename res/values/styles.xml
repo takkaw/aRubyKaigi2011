@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="CustomTheme.Light" parent="@android:style/Theme.Light">
+		<!-- Window title attributes -->
+		<item name="android:windowContentOverlay">@null</item>
+		<!-- Window attributes -->
+		<item name="android:windowBackground">@drawable/tilebg</item>
+	</style>
+</resources>
