@@ -228,7 +228,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 			textViewRoom.setText(room);
 			textViewSpeaker.setText(speaker);
 			LinearLayout subLauout = (LinearLayout)v.findViewById(R.id.item_subLayout);
-			if (room.length() == 0 && speaker.length() == 0){
+			if ((room == null || room.length() == 0) && (speaker == null || speaker.length() == 0)){
 				subLauout.setVisibility(View.GONE);
 			} else {
 				subLauout.setVisibility(View.VISIBLE);
@@ -260,7 +260,7 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 				}
 			});
 
-			if ((desc == null ||desc.length() == 0) && (speakerBio == null || speakerBio.length() == 0)){
+			if ((desc == null || desc.length() == 0) && (speakerBio == null || speakerBio.length() == 0)){
 				v.setClickable(true);
 				linearLayoutFavorite.setVisibility(View.INVISIBLE);
 			} else {
