@@ -277,6 +277,8 @@ public class ARubyKaigi extends Activity implements OnItemSelectedListener,
 				}else{
 					timeLayout.setVisibility(View.VISIBLE);
 				}
+			}else{
+				timeLayout.setVisibility(View.VISIBLE);
 			}
 		}
 
